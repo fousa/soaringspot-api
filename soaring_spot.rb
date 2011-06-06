@@ -27,7 +27,7 @@ class SoaringSpot
 		klasses = {}
 		doc.css('td.mainbody table')[1].css("table").each do |klass|
 			key = get_klass_key(code, klass)
-			klasses[key] = get_klass_value(code, key, klass)
+			klasses[key] = get_klass_value(code, key, klass) unless key.nil?
 		end
 		klasses
 	end
@@ -115,7 +115,11 @@ class SoaringSpot
 	end
 
 	def get_klass_key(code, table)
-		table.css("a:first-child").first.attributes["href"].value.gsub("/#{code}/results/", "").gsub(/\/task.*/, "")
+		if table.css("a:first-child").first
+			table.css("a:first-child").first.attributes["href"].value.gsub("/#{code}/results/", "").gsub(/\/task.*/, "")
+		else
+			nil
+		end
 	end
 
 	def get_klass_value(code, klass_code, table)
