@@ -49,10 +49,11 @@ class SoaringSpot
 
 		doc = Nokogiri::HTML(open(MAIN_URL + "/#{code}/results/#{klass}/task/#{day}.html"))
 		table = doc.css('td.mainbody table')[0]
+		image = doc.css('td.mainbody div.padding div p img')
 		{
 			:totals => totals,
 			:daily => daily,
-			:task => get_task_value(table)
+			:task => get_task_value(table, image.nil? || image.size == 0 ? nil : "#{MAIN_URL}#{image.first.attributes["src"].content}")
 		}
 	end
 
@@ -76,10 +77,11 @@ class SoaringSpot
 		values
 	end
 
-	def get_task_value(table)
+	def get_task_value(table, image)
 		{
 			:distance => table.css("tr.even th:last-child").first.content,
 			:type => table.css("tr:first-child td").first.children[2].content,
+			:image => image,
 			:turnpoints => get_turnpoint_value(table, table.css("tr.headerlight th"))
 		}
 	end
