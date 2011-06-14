@@ -134,11 +134,12 @@ class SoaringSpot
 
 	def get_klass_days(code, klass_code, table)
 		days = {}
-		table.css("tr:not(.even)").css("tr:not(.headerlight)").css("tr:not(.underline)").each do |day|
+		table.css("tr:not(.even)").css("tr:not(.headerlight)").css("tr:not(.underline)").each_with_index do |day, index|
 			columns = day.css("td")
-			days[columns[2].css("a:first-child").first.attributes["href"].value.gsub("/#{code}/results/#{klass_code}/task/", "").gsub(".html", "")]= {
+			days[index]= {
 				"name" => columns[0].content,
-				"date" => columns[1].content
+				"date" => columns[1].content,
+				"key"  => columns[2].css("a:first-child").first.attributes["href"].value.gsub("/#{code}/results/#{klass_code}/task/", "").gsub(".html", "")
 			}
 		end
 		days
