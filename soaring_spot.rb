@@ -16,7 +16,7 @@ class SoaringSpot
 		# Recent competitions 
 		competitions["recent"] = get_competitions doc.css('td.mainbody table')[3]
 		# Upcomming competitions
-		competitions["upcomming"] = get_competitions doc.css('td.mainbody table')[6]
+		competitions["upcoming"] = get_competitions doc.css('td.mainbody table')[6]
 
 		competitions
 	end
