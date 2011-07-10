@@ -1,0 +1,17 @@
+!!!
+
+%html
+  %head
+    %title Soaring Spot iPhone API
+    %style
+      * { font-family: "Helvetica Neue"; color: #CCC; }
+      body { background-color: #222; }
+  %body
+    %h1 Soaring Spot iPhone API
+
+    %h2 Stats
+
+    %ul
+      - Stat.all(:sort => [[ :total_calls, :desc ]]).each do |stat|
+        %li= "#{ "%04d" % stat.total_calls} #{stat.name}"
+
