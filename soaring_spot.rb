@@ -136,7 +136,7 @@ class SoaringSpot
 		days = {}
 		table.css("tr:not(.even)").css("tr:not(.headerlight)").css("tr:not(.underline)").each_with_index do |day, index|
 			columns = day.css("td")
-			days[index]= {
+			days["%02d" % index]= {
 				"name" => columns[0].content,
 				"date" => columns[1].content,
 				"key"  => columns[2].css("a:first-child").first.attributes["href"].value.gsub("/#{code}/results/#{klass_code}/task/", "").gsub(".html", "")
