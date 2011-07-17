@@ -55,6 +55,17 @@ class App < Sinatra::Base
     soaring_spot.competition(params[:code]).to_json
 	end
 
+	get '/competitions/:code/results/:klass/pilots' do
+    content_type :json, 'charset' => 'utf-8'
+
+		stat = Stat.find_or_create_by( :name => "competitions-#{params[:code]}-klass-pilots")
+		stat.update_attribute :total_calls, (stat.total_calls || 0) + 1
+
+		soaring_spot = SoaringSpot.new 
+		
+    soaring_spot.pilots(params[:code], params[:klass]).to_json
+	end
+
 	get '/competitions/:code/results/:klass/days/:day' do
     content_type :json, 'charset' => 'utf-8'
 

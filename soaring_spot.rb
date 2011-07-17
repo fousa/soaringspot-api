@@ -32,6 +32,16 @@ class SoaringSpot
 		klasses
 	end
 
+	def pilots(code, klass)
+		doc = Nokogiri::HTML(open(MAIN_URL + "/#{code}/results/#{klass}/day-by-day.html"))
+		pilots = {} 
+		table = doc.css('td.mainbody table.cuc')[0]
+		table.css("tr.odd, tr.even").each_with_index do |pilot, index|
+			pilots["%03d" % index] = get_pilot_value(pilot, table.css("tr.headerlight").first.css("th"))
+		end
+		pilots
+	end
+
 	def day(code, klass, day)
 		doc = Nokogiri::HTML(open(MAIN_URL + "/#{code}/results/#{klass}/total/#{day}.html"))
 		totals =[] 
@@ -66,6 +76,23 @@ class SoaringSpot
 			values[header.content.downcase] = get_value(pilot[index])
 		end
 		values
+	end
+
+	def get_pilot_value(pilot, headers)
+		pilot = pilot.css("td")
+		info_values = {}
+		result_values = {}
+		headers.each_with_index do |header, index|
+			if /^([0-9]*)$/.match header.content.downcase.strip
+				result_values[header.content.downcase] = get_value(pilot[index])
+			else
+				info_values[header.content.downcase] = get_value(pilot[index])
+			end
+		end
+		{
+			:info    => info_values,
+			:results => result_values
+		}
 	end
 
 	def get_total_value(pilot, headers)
@@ -127,8 +154,8 @@ class SoaringSpot
 	def get_klass_value(code, klass_code, table)
 		name = table.css("tr.headerlight th").children.first.content
 		{
-			:name => name,
-			:days => get_klass_days(code, klass_code, table)
+			:name   => name,
+			:days   => get_klass_days(code, klass_code, table)
 		}
 	end
 
