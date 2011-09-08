@@ -74,6 +74,9 @@ class SoaringSpot
 		values = {}
 		headers.each_with_index do |header, index|
 			values[header.content.downcase] = get_value(pilot[index])
+			if has_igc_link(pilot[index])
+				values["igc"] = get_igc_link(pilot[index])
+			end
 		end
 		values
 	end
@@ -126,6 +129,14 @@ class SoaringSpot
 			end
 		end
 		points
+	end
+
+	def has_igc_link(element)
+		element.css("a").present?
+	end
+
+	def get_igc_link(element)
+		element.css("a").first.attributes["href"].value.gsub("/", "")
 	end
 
 	def get_value(element)
