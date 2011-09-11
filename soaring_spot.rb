@@ -136,7 +136,7 @@ class SoaringSpot
 	end
 
 	def get_igc_link(element)
-		element.css("a").first.attributes["href"].value.gsub("/", "")
+		element.css("a").first.attributes["href"].value.sub("/", "")
 	end
 
 	def get_value(element)
