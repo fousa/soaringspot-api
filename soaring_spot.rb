@@ -27,6 +27,10 @@ class SoaringSpot
     # Valid years: 2000 - ...
     #
     def filtered_competitions(country, year)
+        unless country == "0"
+            country = "__#{country}_"
+        end
+
         content = RestClient.post MAIN_URL + "/competitions/", :country => country, :year => year
         doc = Nokogiri::HTML content
 
