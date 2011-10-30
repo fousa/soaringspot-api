@@ -30,7 +30,7 @@ class SoaringSpot
         content = RestClient.post MAIN_URL + "/competitions/", :country => country, :year => year
         doc = Nokogiri::HTML content
 
-        get_competitions doc.css("td.mainbody table")[1]
+        { "#{country} (#{year})" => get_competitions(doc.css("td.mainbody table")[1]) }
     end
 
     def competition(code)
