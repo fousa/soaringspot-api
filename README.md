@@ -15,14 +15,16 @@ HOW
 URL: http://soaringspot.heroku.com/competitions
 
 EXAMPLE OUTPUT:
-	{
-		"in-progress": {
-			"sprints_sisteron": {
-				"name":"Les sprints de Sisteron"
-			}
-		},
-		"recent": { ... }
-	}
+<pre><code>
+{
+	"in-progress": {
+		"sprints_sisteron": {
+			"name":"Les sprints de Sisteron"
+		}
+	},
+	"recent": { ... }
+}
+</code></pre>
 
 ### Filter
 
@@ -34,13 +36,15 @@ Replace :country with the country key and :year with the year you want to search
 ex: http://soaringspot.heroku.com/competitions/filter/__us_/2012
 
 EXAMPLE OUTPUT:
-	{
-		"__us_ (2012)": {
-			"wgc20112": {
-				"name": "32nd FAI World Gliding Championships"
-			}
+<pre><code>
+{
+	"__us_ (2012)": {
+		"wgc20112": {
+			"name": "32nd FAI World Gliding Championships"
 		}
 	}
+}
+</code></pre>
 	
 ### Results
 
@@ -50,18 +54,20 @@ Replace :code with the competition key.
 ex: http://soaringspot.heroku.com/competitions/wgc20112/results
 
 OUTPUT:
-	{
-		"open": { 
-			"name": "Open class",
-			"days": {
-				"00": {
-					"name": "Day 11",
-					"date": "yesterday",
-					"key": "day11"
-				}
+<pre><code>
+{
+	"open": { 
+		"name": "Open class",
+		"days": {
+			"00": {
+				"name": "Day 11",
+				"date": "yesterday",
+				"key": "day11"
 			}
 		}
 	}
+}
+</code></pre>
 
 ### Pilots
 
@@ -70,7 +76,9 @@ Replace :code with the competition key and klass with the klass key from above.
 
 ex: http://soaringspot.heroku.com/competitions/wgc20112/results/open/pilots
 
-OUTPUT: {
+OUTPUT: 
+<pre><code>
+{
 	"006": { 
 		"results": { 
 			"6": "19(561)",
@@ -92,6 +100,7 @@ OUTPUT: {
 		}
 	}
 }
+</code></pre>
 	
 ### Day results
 
