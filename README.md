@@ -101,35 +101,35 @@ Replace :code with the competition key, klass with the klass key from above and 
 ex: http://soaringspot.heroku.com/competitions/wgc20112/results/open/days/day10
 
 OUTPUT: 
-<code></pre>
-{</br>
-	"daily": [</br>
-		{</br>
-			"cn":"OG",</br>
-			"pen.":"",</br>
-			"dist.":"485.1km",</br>
-			"finish":"18:30:51",</br>
-			"pilot":"Oscar Goudriaan",</br>
-			"#":"1.",</br>
-			"time":"03:36:28",</br>
-			"points":"1000",</br>
-			"igc":"show.php5?auth=cflight/wgc20112.Open.28F_OG/1345195551",</br>
-			"start":"14:54:23",</br>
-			"glider":"JS1-B",</br>
-			"speed":"134.5km/h",</br>
-			"team":"RSA"</br>
-		}</br>
-	],</br>
-	"totals":[</br>
-		{</br>
-			"cn":"CD",</br>
-			"pilot":"Laurent Aboulin",</br>
-			"#":"1.",</br>
-			"total":"9416",</br>
-			"glider":"Quintus M",</br>
-			"team":"FRA"</br>
-		}</br>
-	]</br>
+<pre><code>
+{
+	"daily": [
+		{
+			"cn":"OG",
+			"pen.":"",
+			"dist.":"485.1km",
+			"finish":"18:30:51",
+			"pilot":"Oscar Goudriaan",
+			"#":"1.",
+			"time":"03:36:28",
+			"points":"1000",
+			"igc":"show.php5?auth=cflight/wgc20112.Open.28F_OG/1345195551",
+			"start":"14:54:23",
+			"glider":"JS1-B",
+			"speed":"134.5km/h",
+			"team":"RSA"
+		}
+	],
+	"totals":[
+		{
+			"cn":"CD",
+			"pilot":"Laurent Aboulin",
+			"#":"1.",
+			"total":"9416",
+			"glider":"Quintus M",
+			"team":"FRA"
+		}
+	]
 }
 </code></pre>
 	
