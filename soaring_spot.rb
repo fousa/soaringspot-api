@@ -37,7 +37,7 @@ class SoaringSpot
         doc = Nokogiri::HTML(open(MAIN_URL + "/#{code}/results/"))
 
         klasses = {}
-        doc.css('td.mainbody table')[1].css("table").each do |klass|
+        doc.css('td.mainbody table')[0].css("table").each do |klass|
             key = get_klass_key(code, klass)
             klasses[key] = get_klass_value(code, key, klass) unless key.nil?
         end
@@ -144,7 +144,7 @@ class SoaringSpot
     end
 
     def has_igc_link(element)
-        element.css("a").present?
+        element.css("a").count > 0
     end
 
     def get_igc_link(element)
