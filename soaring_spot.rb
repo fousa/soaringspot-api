@@ -79,13 +79,23 @@ class SoaringSpot
         image = doc.css('td.mainbody div.padding div p img')
         { day: {
                 :totals => totals,
-                :daily => daily,
+                :daily => fix_max_number(daily),
                 :task => get_task_value(table, image.nil? || image.size == 0 ? nil : "#{MAIN_URL}#{image.first.attributes["src"].content}")
             }
         }
     end
 
     private
+
+    def fix_max_number(list)
+        max = -1
+        list.each do |item|
+            max = item["#"] if item["#"] && item["#"] > max
+        end
+        list.each do |item|
+            item["#"] = max + 1 if item["#"] && item["#"] == -1
+        end
+    end
 
     def get_daily_value(pilot, headers)
         pilot = pilot.css("td")
@@ -97,6 +107,7 @@ class SoaringSpot
                 values["igc"] = get_igc_link(pilot[index])
             end
         end
+
         values
     end
 
