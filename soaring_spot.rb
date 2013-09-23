@@ -13,13 +13,16 @@ class SoaringSpot
 
         competitions = {}
         # Competitions in progress
-        competitions["in-progress"] = get_competitions doc.css('td.mainbody table')[1]
+        progress = get_competitions doc.css('td.mainbody table')[1]
+        competitions["progress"] = progress if progress.length > 0
         # Recent competitions 
-        competitions["recent"] = get_competitions doc.css('td.mainbody table')[3]
+        recent = get_competitions doc.css('td.mainbody table')[3]
+        competitions["recent"] = recent if recent.length > 0
         # Upcomming competitions
-        competitions["upcoming"] = get_competitions doc.css('td.mainbody table')[6]
+        upcoming = get_competitions doc.css('td.mainbody table')[6]
+        competitions["upcoming"] = upcoming if upcoming.length > 0
 
-        competitions
+        { competitions: competitions }
     end
 
     #
@@ -30,29 +33,30 @@ class SoaringSpot
         content = RestClient.post MAIN_URL + "/competitions/", :country => country, :year => year
         doc = Nokogiri::HTML content
 
-        { "#{country} (#{year})" => get_competitions(doc.css("td.mainbody table")[1]) }
+        competitions = get_competitions(doc.css("td.mainbody table")[1])
+        { competitions: competitions }
     end
 
     def competition(code)
         content = RestClient.get MAIN_URL + "/#{code}/results/"
         doc = Nokogiri::HTML content
 
-        klasses = {}
+        competition = { key: code, classes: {} }
         doc.css('td.mainbody div.padding div table')[0].css("table").each do |klass|
             key = get_klass_key(code, klass)
-            klasses[key] = get_klass_value(code, key, klass) unless key.nil?
+            competition[:classes][key] = get_klass_value(code, key, klass) unless key.nil?
         end
-        klasses
+        { competition: competition }
     end
 
     def pilots(code, klass)
         doc = Nokogiri::HTML(open(MAIN_URL + "/#{code}/results/#{klass}/day-by-day.html"))
-        pilots = {} 
+        pilots = [] 
         table = doc.css('td.mainbody table.cuc')[0]
         table.css("tr.odd, tr.even").each_with_index do |pilot, index|
-            pilots["%03d" % index] = get_pilot_value(pilot, table.css("tr.headerlight").first.css("th"))
+            pilots << get_pilot_value(pilot, table.css("tr.headerlight").first.css("th"))
         end
-        pilots
+        { pilots: pilots }
     end
 
     def day(code, klass, day)
@@ -73,10 +77,11 @@ class SoaringSpot
         doc = Nokogiri::HTML(open(MAIN_URL + "/#{code}/results/#{klass}/task/#{day}.html"))
         table = doc.css('td.mainbody table')[0]
         image = doc.css('td.mainbody div.padding div p img')
-        {
-            :totals => totals,
-            :daily => daily,
-            :task => get_task_value(table, image.nil? || image.size == 0 ? nil : "#{MAIN_URL}#{image.first.attributes["src"].content}")
+        { day: {
+                :totals => totals,
+                :daily => daily,
+                :task => get_task_value(table, image.nil? || image.size == 0 ? nil : "#{MAIN_URL}#{image.first.attributes["src"].content}")
+            }
         }
     end
 
@@ -87,6 +92,7 @@ class SoaringSpot
         values = {}
         headers.each_with_index do |header, index|
             values[header.content.downcase] = get_value(pilot[index])
+            values[header.content.downcase] = parse_number header.content.downcase, get_value(pilot[index])
             if has_igc_link(pilot[index])
                 values["igc"] = get_igc_link(pilot[index])
             end
@@ -102,7 +108,7 @@ class SoaringSpot
             if /^([0-9]*)$/.match header.content.downcase.strip
                 result_values[header.content.downcase] = get_value(pilot[index])
             else
-                info_values[header.content.downcase] = get_value(pilot[index])
+                info_values[header.content.downcase] = parse_number header.content.downcase, get_value(pilot[index])
             end
         end
         {
@@ -116,6 +122,7 @@ class SoaringSpot
         values = {}
         headers.each_with_index do |header, index|
             values[header.content.downcase] = get_value(pilot[index])
+            values[header.content.downcase] = parse_number header.content.downcase, get_value(pilot[index])
         end
         values
     end
@@ -194,6 +201,14 @@ class SoaringSpot
             }
         end
         days
+    end
+
+    def parse_number(key, value)
+        if key == "#"
+            value.to_i == 0 ? -1 : value.to_i
+        else
+            value
+        end
     end
 end
 
