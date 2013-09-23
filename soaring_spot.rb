@@ -34,10 +34,11 @@ class SoaringSpot
     end
 
     def competition(code)
-        doc = Nokogiri::HTML(open(MAIN_URL + "/#{code}/results/"))
+        content = RestClient.get MAIN_URL + "/#{code}/results/"
+        doc = Nokogiri::HTML content
 
         klasses = {}
-        doc.css('td.mainbody table')[0].css("table").each do |klass|
+        doc.css('td.mainbody div.padding div table')[0].css("table").each do |klass|
             key = get_klass_key(code, klass)
             klasses[key] = get_klass_value(code, key, klass) unless key.nil?
         end
