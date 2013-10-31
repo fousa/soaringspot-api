@@ -42,9 +42,24 @@ class SoaringSpot
         doc = Nokogiri::HTML content
 
         competition = { key: code, classes: {} }
-        doc.css('td.mainbody div.padding div table')[0].css("table").each do |klass|
+        tables = doc.css('td.mainbody div.padding div')[0].children()
+        tables[0].css("table").each do |klass|
             key = get_klass_key(code, klass)
             competition[:classes][key] = get_klass_value(code, key, klass) unless key.nil?
+        end
+        if tables[2]
+            tables[2].css("table").each do |klass|
+                key = get_klass_key(code, klass)
+                unless key.nil?
+                    previous_key_value = competition[:classes][key]
+                    new_days = get_klass_value(code, key, klass)[:days]
+                    refactored_days = {}
+                    new_days.each do |key, value|
+                        refactored_days[900 - key * -1] = value
+                    end
+                    competition[:classes][key][:days] = previous_key_value[:days].merge(refactored_days)
+                end
+            end
         end
         { competition: competition }
     end
@@ -205,7 +220,7 @@ class SoaringSpot
         days = {}
         table.css("tr:not(.even)").css("tr:not(.headerlight)").css("tr:not(.underline)").each_with_index do |day, index|
             columns = day.css("td")
-            days["%02d" % index]= {
+            days[("%02d" % index).to_i]= {
                 "name" => columns[0].content,
                 "date" => columns[1].content,
                 "key"  => columns[2].css("a:first-child").first.attributes["href"].value.gsub("/#{code}/results/#{klass_code}/task/", "").gsub(".html", "")
