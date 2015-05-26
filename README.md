@@ -7,6 +7,17 @@ This application makes the [Soaring Sport website](http://soaringspot.com/) more
 
 This repo contains the code for the API website.
 
+Run the server locally.
+-----------------------
+
+Run 'bundle install' in the Terminal in order to install all the gems.
+
+    bundle install
+
+When these are installed you can run the following command in order to start the server.
+
+    shotgun config.ru
+
 HOW
 ---
 
@@ -45,7 +56,7 @@ EXAMPLE OUTPUT:
 	}
 }
 </code></pre>
-	
+
 ### Results
 
 URL: http://soaringspot.heroku.com/competitions/:code/results
@@ -56,7 +67,7 @@ ex: http://soaringspot.heroku.com/competitions/wgc20112/results
 OUTPUT:
 <pre><code>
 {
-	"open": { 
+	"open": {
 		"name": "Open class",
 		"days": {
 			"00": {
@@ -76,11 +87,11 @@ Replace :code with the competition key and klass with the klass key from above.
 
 ex: http://soaringspot.heroku.com/competitions/wgc20112/results/open/pilots
 
-OUTPUT: 
+OUTPUT:
 <pre><code>
 {
-	"006": { 
-		"results": { 
+	"006": {
+		"results": {
 			"6": "19(561)",
 			"11":"6(933)",
 			"7":"8(941)",
@@ -90,7 +101,7 @@ OUTPUT:
 			"2":"6(976)",
 			"3":"16(823)"
 		},
-		"info":{ 
+		"info":{
 			"cn":"72",
 			"pilot":"Sylvain Gerbaud",
 			"#":"13.",
@@ -101,7 +112,7 @@ OUTPUT:
 	}
 }
 </code></pre>
-	
+
 ### Day results
 
 URL: http://soaringspot.heroku.com/competitions/:code/results/:klass/days/:day
@@ -109,7 +120,7 @@ Replace :code with the competition key, klass with the klass key from above and 
 
 ex: http://soaringspot.heroku.com/competitions/wgc20112/results/open/days/day10
 
-OUTPUT: 
+OUTPUT:
 <pre><code>
 {
 	"daily": [
@@ -141,7 +152,7 @@ OUTPUT:
 	]
 }
 </code></pre>
-	
+
 
 WHO
 ---
