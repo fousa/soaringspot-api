@@ -77,11 +77,12 @@ class SoaringSpot
     doc = Nokogiri::HTML(open(MAIN_URL + "/en_gb/#{code}/tasks/#{klass}/#{day}"))
     table = doc.css('table.task')[0]
     image = doc.css('div.task-images img')
+    duration = doc.css('.task-duration strong').first.try :content
     {
       day: {
         totals: totals,
-        daily:  daily,
-        task:   get_task_value(table, image.nil? || image.size == 0 ? nil : "#{MAIN_URL}#{image.first.attributes["src"].content}")
+        daily:  fix_max_number(daily),
+        task:   get_task_value(table, image.nil? || image.size == 0 ? nil : "#{MAIN_URL}#{image.first.attributes["src"].content}", duration)
       }
     }
   end
@@ -102,8 +103,8 @@ class SoaringSpot
     pilot = pilot.css("td")
     values = {}
     headers.each_with_index do |header, index|
-      values[header.content.downcase] = get_value(pilot[index])
-      values[header.content.downcase] = parse_number header.content.downcase, get_value(pilot[index])
+      values[translate_header_value(header.content.downcase)] = get_value(pilot[index])
+      values[translate_header_value(header.content.downcase)] = parse_number header.content.downcase, get_value(pilot[index])
       if has_igc_link(pilot[index])
         values["igc"] = get_igc_link(pilot[index])
       end
@@ -116,10 +117,11 @@ class SoaringSpot
     info_values = {}
     result_values = {}
     headers.each_with_index do |header, index|
-      if /^total|([0-9]*\.)$/.match header.content.downcase.strip
-        result_values[header.content.downcase] = get_value(pilot[index])
+      if /^([0-9]*\.)$/.match header.content.downcase.strip
+        value = pilot[index].css('span').map(&:content).join('')
+        result_values[header.content.gsub(".", "").downcase] = value
       else
-        info_values[header.content.downcase] = parse_number header.content.downcase, get_value(pilot[index])
+        info_values[translate_header_value(header.content.downcase)] = parse_number header.content.downcase, get_value(pilot[index])
       end
     end
     {
@@ -128,19 +130,29 @@ class SoaringSpot
     }
   end
 
+  def translate_header_value(header)
+    renamed_header = {
+      club:       "team",
+      contestant: "pilot",
+      distance:   "dist."
+    }[header.to_sym]
+    renamed_header || header
+  end
+
   def get_total_value(pilot, headers)
     pilot = pilot.css("td")
     values = {}
     headers.each_with_index do |header, index|
-      values[header.content.downcase] = get_value(pilot[index])
-      values[header.content.downcase] = parse_number header.content.downcase, get_value(pilot[index])
+      values[translate_header_value(header.content.downcase)] = get_value(pilot[index])
+      values[translate_header_value(header.content.downcase)] = parse_number header.content.downcase, get_value(pilot[index])
     end
     values
   end
 
-  def get_task_value(table, image)
+  def get_task_value(table, image, duration)
     {
       distance:   table.css("tfoot td").last.content.strip,
+      type:       (duration ? "AAT #{duration}" : "Speed Task"),
       image:      image,
       turnpoints: get_turnpoint_value(table)
     }
@@ -203,7 +215,8 @@ class SoaringSpot
       columns = day.css("td")
       if columns[1].css("a").first.nil?
         days[("%02d" % index).to_i]= {
-          "date" => columns[0].content
+          "date" => columns[0].content,
+          "name" => "Cancelled"
         }
       else
         days[("%02d" % index).to_i]= {
