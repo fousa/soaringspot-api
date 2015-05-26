@@ -5,7 +5,7 @@ require 'open-uri'
 require 'restclient/components'
 
 class SoaringSpot
-  MAIN_URL = 'http://soaringspot.com'
+  MAIN_URL = 'http://www.soaringspot.com'
 
   def competitions
     doc = Nokogiri::HTML(open(MAIN_URL))
@@ -29,10 +29,10 @@ class SoaringSpot
   # Valid years: 2000 - ...
   #
   def filtered_competitions(country, year)
-    content = RestClient.post MAIN_URL + "/competitions/", :country => country, :year => year
+    content = RestClient.post MAIN_URL + "/en_gb/search/", :country => country, :year => year
     doc = Nokogiri::HTML content
 
-    competitions = get_competitions(doc.css("td.mainbody table")[1])
+    competitions = get_competitions(doc.css("div.contest-list ul")[0])
     { competitions: competitions }
   end
 
