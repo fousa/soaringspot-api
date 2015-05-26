@@ -6,7 +6,6 @@ require 'restclient/components'
 
 class SoaringSpot
     MAIN_URL = 'http://soaringspot.com'
-    API_URL = 'http://soaringspot.dev'
 
     def competitions
         doc = Nokogiri::HTML(open(MAIN_URL))
@@ -15,7 +14,7 @@ class SoaringSpot
         # Competitions in progress
         progress = get_competitions doc.css('td.mainbody table')[1]
         competitions["progress"] = progress if progress.length > 0
-        # Recent competitions 
+        # Recent competitions
         recent = get_competitions doc.css('td.mainbody table')[3]
         competitions["recent"] = recent if recent.length > 0
         # Upcomming competitions
@@ -66,7 +65,7 @@ class SoaringSpot
 
     def pilots(code, klass)
         doc = Nokogiri::HTML(open(MAIN_URL + "/#{code}/results/#{klass}/day-by-day.html"))
-        pilots = [] 
+        pilots = []
         table = doc.css('td.mainbody table.cuc')[0]
         table.css("tr.odd, tr.even").each_with_index do |pilot, index|
             pilots << get_pilot_value(pilot, table.css("tr.headerlight").first.css("th"))
@@ -76,14 +75,14 @@ class SoaringSpot
 
     def day(code, klass, day)
         doc = Nokogiri::HTML(open(MAIN_URL + "/#{code}/results/#{klass}/total/#{day}.html"))
-        totals =[] 
+        totals =[]
         table = doc.css('td.mainbody table')[0]
         table.css("tr.odd, tr.even").each do |pilot|
             totals << get_total_value(pilot, table.css("tr.headerlight").first.css("th"))
         end
 
         doc = Nokogiri::HTML(open(MAIN_URL + "/#{code}/results/#{klass}/daily/#{day}.html"))
-        daily =[] 
+        daily =[]
         table = doc.css('td.mainbody table')[0]
         table.css("tr.odd, tr.even").each do |pilot|
             daily << get_daily_value(pilot, table.css("tr.headerlight").first.css("th"))
@@ -247,4 +246,3 @@ class Object
         send method if respond_to? method
     end
 end
-
