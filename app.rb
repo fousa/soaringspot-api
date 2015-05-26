@@ -8,7 +8,7 @@ class App < Sinatra::Base
     set :root, File.dirname(__FILE__)
 
     get '/' do
-        redirect "/api/competitions"
+        redirect "http://docs.soaringspot.apiary.io"
     end
 
     get '/api/competitions' do
