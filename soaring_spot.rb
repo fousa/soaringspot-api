@@ -60,27 +60,27 @@ class SoaringSpot
   end
 
   def day(code, klass, day)
-    doc = Nokogiri::HTML(open(MAIN_URL + "/#{code}/results/#{klass}/total/#{day}.html"))
+    doc = Nokogiri::HTML(open(MAIN_URL + "/en_gb/#{code}/results/#{klass}/#{day}/total"))
     totals =[]
-    table = doc.css('td.mainbody table')[0]
-    table.css("tr.odd, tr.even").each do |pilot|
-      totals << get_total_value(pilot, table.css("tr.headerlight").first.css("th"))
+    table = doc.css('table.result-total-daily')[0]
+    table.css("tbody tr").each do |pilot|
+      totals << get_total_value(pilot, table.css("thead tr th"))
     end
 
-    doc = Nokogiri::HTML(open(MAIN_URL + "/#{code}/results/#{klass}/daily/#{day}.html"))
+    doc = Nokogiri::HTML(open(MAIN_URL + "/en_gb/#{code}/results/#{klass}/#{day}/daily"))
     daily =[]
-    table = doc.css('td.mainbody table')[0]
-    table.css("tr.odd, tr.even").each do |pilot|
-      daily << get_daily_value(pilot, table.css("tr.headerlight").first.css("th"))
+    table = doc.css('table.result-daily')[0]
+    table.css("tbody tr").each do |pilot|
+      daily << get_daily_value(pilot, table.css("thead tr th"))
     end
 
-    doc = Nokogiri::HTML(open(MAIN_URL + "/#{code}/results/#{klass}/task/#{day}.html"))
-    table = doc.css('td.mainbody table')[0]
-    image = doc.css('td.mainbody div.padding div p img')
+    doc = Nokogiri::HTML(open(MAIN_URL + "/en_gb/#{code}/tasks/#{klass}/#{day}"))
+    table = doc.css('table.task')[0]
+    image = doc.css('div.task-images img')
     {
       day: {
         totals: totals,
-        daily:  fix_max_number(daily),
+        daily:  daily,
         task:   get_task_value(table, image.nil? || image.size == 0 ? nil : "#{MAIN_URL}#{image.first.attributes["src"].content}")
       }
     }
@@ -108,7 +108,6 @@ class SoaringSpot
         values["igc"] = get_igc_link(pilot[index])
       end
     end
-
     values
   end
 
@@ -141,24 +140,22 @@ class SoaringSpot
 
   def get_task_value(table, image)
     {
-      distance:   table.css("tr.even th:last-child").first.content,
-      type:       table.css("tr:first-child td").first.children[2].content,
+      distance:   table.css("tfoot td").last.content.strip,
       image:      image,
-      turnpoints: get_turnpoint_value(table, table.css("tr.headerlight th"))
+      turnpoints: get_turnpoint_value(table)
     }
   end
 
-  def get_turnpoint_value(table, headers)
+  def get_turnpoint_value(table)
     points = []
-    table.css("tr").each_with_index do |point, index|
-      if index > 2 && index < table.css("tr").count - 1
-        values = {}
-        headers.each_with_index do |header, indexe|
-          values[header.content.downcase] = get_value(point.css("td")[indexe])
-        end
-        values[:point] = index - 2
-        points << values
+    headers = table.css("thead th")
+    table.css("tbody tr").each_with_index do |point, index|
+      values = {}
+      headers.each_with_index do |header, indexe|
+        values[header.content.downcase] = get_value(point.css("td")[indexe])
       end
+      values[:point] = index
+      points << values
     end
     points
   end
@@ -172,7 +169,7 @@ class SoaringSpot
   end
 
   def get_value(element)
-    element.css("b").first.try(:content) || element.css("a").first.try(:content) || element.css("span").first.try(:content) || element.content
+    (element.css("b").first.try(:content) || element.css("a").first.try(:content) || element.css("span").first.try(:content) || element.content).try :strip
   end
 
   def get_competitions(list)
