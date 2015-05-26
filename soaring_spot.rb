@@ -37,28 +37,14 @@ class SoaringSpot
   end
 
   def competition(code)
-    content = RestClient.get MAIN_URL + "/#{code}/results/"
+    content = RestClient.get MAIN_URL + "/en_gb/#{code}/results"
     doc = Nokogiri::HTML content
 
     competition = { key: code, classes: {} }
-    tables = doc.css('td.mainbody div.padding div')[0].children()
-    tables[0].css("table").each do |klass|
-      key = get_klass_key(code, klass)
-      competition[:classes][key] = get_klass_value(code, key, klass) unless key.nil?
-    end
-    if tables[2]
-      tables[2].css("table").each do |klass|
-        key = get_klass_key(code, klass)
-        unless key.nil?
-          previous_key_value = competition[:classes][key]
-          new_days = get_klass_value(code, key, klass)[:days]
-          refactored_days = {}
-          new_days.each do |key, value|
-            refactored_days[900 - key * -1] = value
-          end
-          competition[:classes][key][:days] = previous_key_value[:days].merge(refactored_days)
-        end
-      end
+    tables = doc.css('table.result-overview')
+    tables.each do |table|
+      key = get_klass_key code, table.css("th")[0]
+      competition[:classes][key] = get_klass_value(code, key, table) unless key.nil?
     end
     { competition: competition }
   end
@@ -200,14 +186,14 @@ class SoaringSpot
 
   def get_klass_key(code, table)
     if table.css("a:first-child").first
-      table.css("a:first-child").first.attributes["href"].value.gsub("/#{code}/results/", "").gsub(/\/task.*/, "")
+      table.css("a:first-child").first.attributes["href"].value.gsub("/en_gb/#{code}/results/", "")
     else
       nil
     end
   end
 
   def get_klass_value(code, klass_code, table)
-    name = table.css("tr.headerlight th").children.first.content
+    name = table.css("th")[0].content.strip
     {
       :name   => name,
       :days   => get_klass_days(code, klass_code, table)
@@ -216,13 +202,19 @@ class SoaringSpot
 
   def get_klass_days(code, klass_code, table)
     days = {}
-    table.css("tr:not(.even)").css("tr:not(.headerlight)").css("tr:not(.underline)").each_with_index do |day, index|
+    table.css("tbody tr").each_with_index do |day, index|
       columns = day.css("td")
-      days[("%02d" % index).to_i]= {
-        "name" => columns[0].content,
-        "date" => columns[1].content,
-        "key"  => columns[2].css("a:first-child").first.attributes["href"].value.gsub("/#{code}/results/#{klass_code}/task/", "").gsub(".html", "")
-      }
+      if columns[1].css("a").first.nil?
+        days[("%02d" % index).to_i]= {
+          "date" => columns[0].content
+        }
+      else
+        days[("%02d" % index).to_i]= {
+          "name" => columns[1].content.strip,
+          "date" => columns[0].content,
+          "key"  => columns[1].css("a").first.attributes["href"].value.gsub("/en_gb/#{code}/tasks/#{klass_code}/", "").gsub(".html", "")
+        }
+      end
     end
     days
   end
