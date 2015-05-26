@@ -50,11 +50,11 @@ class SoaringSpot
   end
 
   def pilots(code, klass)
-    doc = Nokogiri::HTML(open(MAIN_URL + "/#{code}/results/#{klass}/day-by-day.html"))
+    doc = Nokogiri::HTML(open(MAIN_URL + "/en_gb/#{code}/results/#{klass}"))
     pilots = []
-    table = doc.css('td.mainbody table.cuc')[0]
-    table.css("tr.odd, tr.even").each_with_index do |pilot, index|
-      pilots << get_pilot_value(pilot, table.css("tr.headerlight").first.css("th"))
+    table = doc.css('table.result-class')[0]
+    table.css('tbody tr').each do |pilot, index|
+      pilots << get_pilot_value(pilot, table.css("th"))
     end
     { pilots: pilots }
   end
@@ -117,7 +117,7 @@ class SoaringSpot
     info_values = {}
     result_values = {}
     headers.each_with_index do |header, index|
-      if /^([0-9]*)$/.match header.content.downcase.strip
+      if /^total|([0-9]*\.)$/.match header.content.downcase.strip
         result_values[header.content.downcase] = get_value(pilot[index])
       else
         info_values[header.content.downcase] = parse_number header.content.downcase, get_value(pilot[index])
