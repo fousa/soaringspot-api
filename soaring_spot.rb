@@ -29,7 +29,7 @@ class SoaringSpot
   # Valid years: 2000 - ...
   #
   def filtered_competitions(country, year)
-    content = RestClient.post MAIN_URL + "/en_gb/search/", :country => country, :year => year
+    content = RestClient.post MAIN_URL + "/en_gb/search/", country: country, year: year
     doc = Nokogiri::HTML content
 
     competitions = get_competitions(doc.css("div.contest-list ul")[0])
@@ -91,10 +91,11 @@ class SoaringSpot
     doc = Nokogiri::HTML(open(MAIN_URL + "/#{code}/results/#{klass}/task/#{day}.html"))
     table = doc.css('td.mainbody table')[0]
     image = doc.css('td.mainbody div.padding div p img')
-    { day: {
-      :totals => totals,
-      :daily => fix_max_number(daily),
-      :task => get_task_value(table, image.nil? || image.size == 0 ? nil : "#{MAIN_URL}#{image.first.attributes["src"].content}")
+    {
+      day: {
+        totals: totals,
+        daily:  fix_max_number(daily),
+        task:   get_task_value(table, image.nil? || image.size == 0 ? nil : "#{MAIN_URL}#{image.first.attributes["src"].content}")
       }
     }
   end
@@ -137,8 +138,8 @@ class SoaringSpot
       end
     end
     {
-      :info    => info_values,
-      :results => result_values
+      info:    info_values,
+      results: result_values
     }
   end
 
@@ -154,10 +155,10 @@ class SoaringSpot
 
   def get_task_value(table, image)
     {
-      :distance => table.css("tr.even th:last-child").first.content,
-      :type => table.css("tr:first-child td").first.children[2].content,
-      :image => image,
-      :turnpoints => get_turnpoint_value(table, table.css("tr.headerlight th"))
+      distance:   table.css("tr.even th:last-child").first.content,
+      type:       table.css("tr:first-child td").first.children[2].content,
+      image:      image,
+      turnpoints: get_turnpoint_value(table, table.css("tr.headerlight th"))
     }
   end
 
@@ -191,10 +192,8 @@ class SoaringSpot
   def get_competitions(list)
     competitions = {}
     list.css("li a").each do |element|
-      key = element.attributes["href"].value
-      competitions[key.split('/').last] = {
-        "name" => element.content
-      }
+      key = element.attributes["href"].value.split('/').last
+      competitions[key] = { name: element.content }
     end
     competitions
   end
